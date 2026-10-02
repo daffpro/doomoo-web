@@ -1,0 +1,6 @@
+'use client';
+import { Search } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+const suggestions=['Poussette','Crèche à Mermoz','Pédiatre','Vêtements 3 ans','Activités ce week-end'];
+export default function SearchPage(){const[q,setQ]=useState('');const router=useRouter();function submit(e:React.FormEvent){e.preventDefault();router.push(`/marketplace?q=${encodeURIComponent(q)}`)}return <><section className="page-hero"><div className="container" style={{maxWidth:800,textAlign:'center'}}><span className="eyebrow">Recherche globale</span><h1>Que cherchez-vous ?</h1><p>Produits, écoles, professionnels, conseils, événements et discussions.</p><form className="search-bar" onSubmit={submit} style={{marginTop:25}}><input autoFocus value={q} onChange={e=>setQ(e.target.value)} placeholder="Commencez à écrire…"/><button><Search/></button></form></div></section><section className="section"><div className="container" style={{maxWidth:800}}><h3>Recherches populaires</h3><div className="detail-meta" style={{marginTop:15}}>{suggestions.map(s=><button className="pill" style={{border:0}} onClick={()=>router.push(`/marketplace?q=${encodeURIComponent(s)}`)} key={s}>{s}</button>)}</div></div></section></>}

@@ -1,0 +1,16 @@
+'use client';
+import { Heart, MessageCircle, PackageCheck, ShieldCheck, ShoppingBag, Truck } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { api, money } from '@/lib/api';
+import type { Product } from '@/lib/types';
+import { LoadingCards, Rating } from '@/components/ui';
+
+export default function ProductPage() {
+  const { slug } = useParams<{ slug: string }>(); const [product, setProduct] = useState<Product | null>(null); const [message, setMessage] = useState('');
+  useEffect(() => { api<Product>(`/marketplace/products/${slug}`).then(setProduct); }, [slug]);
+  async function addToCart() { if (!product) return; try { await api('/commerce/cart', { method: 'POST', body: JSON.stringify({ productId: product.id, quantity: 1 }) }); setMessage('Article ajouté au panier.'); } catch { window.location.href = '/connexion'; } }
+  if (!product) return <section className="section"><div className="container"><LoadingCards count={2}/></div></section>;
+  return <><section className="page-hero small"><div className="container breadcrumb">Accueil · Marketplace · {product.category.name}</div></section><section className="section"><div className="container detail-grid"><div><div className="gallery-main"><img src={product.images[0]} alt={product.title}/></div></div><div className="detail-panel"><span className="eyebrow">{product.category.name}</span><h1>{product.title}</h1><div style={{ marginTop: 12 }}><Rating value={4.8} count={product._count?.reviews || 0}/></div><div className="detail-price">{money(product.price)} {product.originalPrice && <del style={{ fontSize: 14, color: '#999' }}>{money(product.originalPrice)}</del>}</div><div className="detail-meta"><span className="pill">{product.kind === 'C2C' ? 'Seconde main' : 'Produit neuf'}</span><span className="pill">{product.condition.replaceAll('_', ' ')}</span>{product.ageRange && <span className="pill">{product.ageRange}</span>}</div><p style={{ color: '#747C8B' }}>{product.description}</p><div className="info-list"><div className="info-item"><b><Truck size={16}/> Livraison</b>À domicile ou remise en main propre</div><div className="info-item"><b><ShieldCheck size={16}/> Protection</b>Paiement sécurisé par Doomoo</div></div>{message && <div className="form-success">{message}</div>}<div className="detail-actions"><button className="button coral" onClick={addToCart}><ShoppingBag size={18}/> Ajouter au panier</button><button className="button secondary"><MessageCircle size={18}/> Contacter</button><button className="button secondary"><Heart size={18}/> Favoris</button></div><div className="seller-box"><div className="seller-avatar">{product.seller.firstName[0]}{product.seller.lastName[0]}</div><div style={{ flex: 1 }}><strong>{product.seller.firstName} {product.seller.lastName}</strong><small style={{ display: 'block', color: '#747C8B' }}>{product.seller.city} · Répond rapidement</small></div>{product.seller.verified && <ShieldCheck color="#183B73"/>}</div><p style={{ fontSize: 11, color: '#747C8B', display: 'flex', gap: 6, alignItems: 'center' }}><PackageCheck size={16}/> Achetez sereinement : vos fonds restent protégés jusqu’à la réception.</p></div></div></section></>;
+}

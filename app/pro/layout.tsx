@@ -1,0 +1,6 @@
+'use client';
+import { BadgePercent, BarChart3, Boxes, CreditCard, LayoutDashboard, PackageCheck, Settings, ShoppingBag, Users, UsersRound } from 'lucide-react';
+import Link from 'next/link';
+import { useAuth } from '@/components/auth-provider';
+const links=[['Tableau de bord','/pro',LayoutDashboard],['Catalogue','/pro/catalogue',Boxes],['Commandes','/pro/commandes',PackageCheck],['Stocks','/pro/stock',ShoppingBag],['Clients','/pro/clients',Users],['Promotions','/pro/promotions',BadgePercent],['Paiements','/pro/paiements',CreditCard],['Statistiques','/pro/statistiques',BarChart3],['Équipe','/pro/equipe',UsersRound],['Abonnement','/pro/abonnement',CreditCard],['Boutique','/pro/boutique',Settings]] as const;
+export default function ProLayout({children}:{children:React.ReactNode}){const{user,loading}=useAuth();if(!loading&&!user){if(typeof window!=='undefined')window.location.href='/connexion';return null}return <div className="container dashboard-shell"><aside className="sidebar"><div className="sidebar-profile"><strong>Espace professionnel</strong><small>{user?.email}</small></div>{links.map(([label,href,Icon])=><Link href={href} key={href}><Icon size={16}/>{label}</Link>)}</aside><section className="dashboard-content">{children}</section></div>}

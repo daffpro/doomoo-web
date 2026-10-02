@@ -1,0 +1,7 @@
+'use client';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
+import type { Article } from '@/lib/types';
+
+export default function AdvicePage() { const [items, setItems] = useState<Article[]>([]); const [age, setAge] = useState(''); useEffect(() => { api<Article[]>(`/content/articles${age ? `?ageRange=${encodeURIComponent(age)}` : ''}`).then(setItems); }, [age]); return <><section className="page-hero"><div className="container"><span className="eyebrow">Doomoo Conseils</span><h1>Des repères, jamais de pression.</h1><p>Des conseils humains et faciles à appliquer, pensés pour les réalités des familles.</p></div></section><section className="section"><div className="container"><div className="toolbar"><div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>{['','Grossesse','0-12 mois','1-3 ans','3-6 ans','6-12 ans'].map((value) => <button key={value} onClick={() => setAge(value)} className={`button small ${age === value ? 'primary':'ghost'}`}>{value || 'Tous les âges'}</button>)}</div></div><div className="cards-grid three">{items.map((article) => <Link href={`/conseils/${article.slug}`} className="article-card" key={article.id}><img src={article.imageUrl} alt={article.title}/><div className="card-body"><div className="card-label"><span>{article.category}</span><span>{article.ageRange}</span></div><h3>{article.title}</h3><p>{article.excerpt}</p><span className="text-link">Lire l’article →</span></div></Link>)}</div></div></section></>; }

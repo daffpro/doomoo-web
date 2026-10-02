@@ -1,0 +1,14 @@
+'use client';
+import { Check, GitCompareArrows, MapPin, Search } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { api, money } from '@/lib/api';
+import type { School } from '@/lib/types';
+import { Rating } from '@/components/ui';
+
+export default function SchoolsPage() {
+  const [schools, setSchools] = useState<School[]>([]); const [q, setQ] = useState(''); const [type, setType] = useState(''); const [compare, setCompare] = useState<string[]>([]);
+  useEffect(() => { const params = new URLSearchParams({ ...(q ? { q } : {}), ...(type ? { type } : {}) }); api<School[]>(`/directory/schools?${params}`).then(setSchools); }, [q, type]);
+  const toggle = (id: string) => setCompare((items) => items.includes(id) ? items.filter((item) => item !== id) : items.length < 3 ? [...items, id] : items);
+  return <><section className="page-hero"><div className="container"><span className="eyebrow">Doomoo School</span><h1>Le bon lieu pour grandir.</h1><p>Explorez, comparez et contactez les écoles, crèches et structures éducatives vérifiées.</p><div className="search-bar" style={{ maxWidth: 650, marginTop: 25 }}><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nom, quartier ou pédagogie…"/><button><Search/></button></div></div></section><section className="section"><div className="container"><div className="toolbar"><div style={{ display: 'flex', gap: 8 }}>{['', 'CRÈCHE', 'PRÉSCOLAIRE', 'ÉCOLE'].map((value) => <button key={value} className={`button small ${type === value ? 'primary' : 'ghost'}`} onClick={() => setType(value)}>{value || 'Tout'}</button>)}</div>{compare.length > 1 && <Link className="button coral small" href={`/ecoles/comparer?ids=${compare.join(',')}`}><GitCompareArrows size={16}/>Comparer ({compare.length})</Link>}</div><div className="cards-grid three">{schools.map((school) => <article className="school-card" key={school.id}><div style={{ position: 'relative' }}><img src={school.images[0]} alt={school.name}/><button className={`heart-button ${compare.includes(school.id) ? 'active' : ''}`} onClick={() => toggle(school.id)} title="Ajouter au comparateur">{compare.includes(school.id) ? <Check/> : <GitCompareArrows size={17}/>}</button></div><Link href={`/ecoles/${school.slug}`} className="card-body" style={{ display: 'block' }}><div className="card-label"><span>{school.type}</span>{school.verified && <span>✓ Vérifiée</span>}</div><h3>{school.name}</h3><p><MapPin size={13} style={{ display: 'inline' }}/> {school.district}, {school.city}</p><p>{school.description}</p><div style={{ display: 'flex', justifyContent: 'space-between' }}><Rating value={school.rating} count={school.reviewCount}/><strong style={{ color: '#183B73', fontSize: 11 }}>{school.priceFrom ? `dès ${money(school.priceFrom)}` : 'Sur demande'}</strong></div></Link></article>)}</div></div></section></>;
+}
